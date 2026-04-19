@@ -15,7 +15,7 @@ public class MoveLeft : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    void FixedUpdate() // 🔥 ใช้ FixedUpdate แทน Update
+    void FixedUpdate() 
     {
         GameObject player = GameObject.Find("Player");
         bool isGameOver = player.GetComponent<PlayerController>().gameOver;
@@ -25,7 +25,7 @@ public class MoveLeft : MonoBehaviour
             return;
         }
 
-        // 🔥 ใช้ physics movement
+        
         rb.MovePosition(
             transform.position + Vector3.left * speed * Time.fixedDeltaTime
         );
