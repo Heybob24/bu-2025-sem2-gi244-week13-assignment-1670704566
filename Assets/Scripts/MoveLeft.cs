@@ -4,22 +4,18 @@ public class MoveLeft : MonoBehaviour
 {
     public float speed = 10f;
 
-    private ObstacleObjectPool pool;
-    private Rigidbody rb;
-
-    public int obstacleType;
-
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        pool = FindFirstObjectByType<ObstacleObjectPool>();
-        rb = GetComponent<Rigidbody>();
+
     }
 
-    void FixedUpdate() 
+    // Update is called once per frame
+    void Update()
     {
+        // 1.17 stop moving left when the game is over
         GameObject player = GameObject.Find("Player");
         bool isGameOver = player.GetComponent<PlayerController>().gameOver;
-
         if (isGameOver)
         {
             return;
@@ -30,9 +26,9 @@ public class MoveLeft : MonoBehaviour
             transform.position + Vector3.left * speed * Time.fixedDeltaTime
         );
 
-        if (transform.position.x < -15)
+        if (transform.position.x < -15 && gameObject.CompareTag("Obstacle"))
         {
-            pool.Release(gameObject, obstacleType);
+            Destroy(gameObject);
         }
     }
 }
