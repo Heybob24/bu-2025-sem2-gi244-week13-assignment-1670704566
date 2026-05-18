@@ -9,7 +9,12 @@ public class SpawnManager : MonoBehaviour
 
     [Header("Spawn Point")]
     public Transform spawnPoint;
-    public GameObject obstaclePrefab;
+
+    [Header("Spawn Setting")]
+    public float spawnInterval = 2f;
+
+    [Header("Obstacle Types")]
+    public int obstacleTypeCount = 3;
 
     void Start()
     {
@@ -18,18 +23,36 @@ public class SpawnManager : MonoBehaviour
 
     IEnumerator SpawnRoutine()
     {
-        // 1.18 stop moving left when the game is over
-        GameObject player = GameObject.Find("Player");
-        bool isGameOver = player.GetComponent<PlayerController>().gameOver;
-        if (isGameOver)
+        while (true)
         {
-            return;
-        }
+            SpawnObstacle();
 
-        Instantiate(
-            obstaclePrefab,
-            spawnPoint.position,
-            obstaclePrefab.transform.rotation
-        );
+            yield return new WaitForSeconds(spawnInterval);
+        }
+    }
+
+    void SpawnObstacle()
+    {
+        // สุ่ม type
+        int randomType = Random.Range(0, obstacleTypeCount);
+
+        // acquire จาก pool type ที่สุ่มได้
+        GameObject obstacle = obstaclePool.Acquire(randomType);
+
+        if (obstacle == null) return;
+
+        obstacle.transform.position = spawnPoint.position;
+        obstacle.transform.rotation = Quaternion.identity;
+
+        obstacle.SetActive(true);
+
+        // ส่ง type ให้ obstacle จำไว้
+        Obstacle obstacleScript = obstacle.GetComponent<Obstacle>();
+
+        if (obstacleScript != null)
+        {
+            obstacleScript.obstacleType = randomType;
+            obstacleScript.pool = obstaclePool;
+        }
     }
 }
