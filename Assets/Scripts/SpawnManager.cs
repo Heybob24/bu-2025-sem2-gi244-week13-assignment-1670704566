@@ -1,29 +1,58 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class SpawnManager : MonoBehaviour
 {
+    [Header("Pool")]
+    public ObstacleObjectPool obstaclePool;
+
+    [Header("Spawn Point")]
     public Transform spawnPoint;
-    public GameObject obstaclePrefab;
+
+    [Header("Spawn Setting")]
+    public float spawnInterval = 2f;
+
+    [Header("Obstacle Types")]
+    public int obstacleTypeCount = 3;
 
     void Start()
     {
-        InvokeRepeating(nameof(Spawn), 0, 2f);
+        StartCoroutine(SpawnRoutine());
     }
 
-    void Spawn()
+    IEnumerator SpawnRoutine()
     {
-        // 1.18 stop moving left when the game is over
-        GameObject player = GameObject.Find("Player");
-        bool isGameOver = player.GetComponent<PlayerController>().gameOver;
-        if (isGameOver)
+        while (true)
         {
-            return;
-        }
+            SpawnObstacle();
 
-        Instantiate(
-            obstaclePrefab,
-            spawnPoint.position,
-            obstaclePrefab.transform.rotation
-        );
+            yield return new WaitForSeconds(spawnInterval);
+        }
+    }
+
+    void SpawnObstacle()
+    {
+        
+        int randomType = Random.Range(0, obstacleTypeCount);
+
+        
+        GameObject obstacle = obstaclePool.Acquire(randomType);
+
+        if (obstacle == null) return;
+
+        obstacle.transform.position = spawnPoint.position;
+        obstacle.transform.rotation = Quaternion.identity;
+
+        obstacle.SetActive(true);
+
+    
+        Obstacle obstacleScript = obstacle.GetComponent<Obstacle>();
+
+        if (obstacleScript != null)
+        {
+            obstacleScript.obstacleType = randomType;
+            obstacleScript.pool = obstaclePool;
+        }
     }
 }
